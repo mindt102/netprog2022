@@ -1,0 +1,196 @@
+\documentclass[12pt]{article}
+
+\usepackage{geometry}
+\usepackage{parskip}
+\usepackage{tikz}
+
+% This style is used to create block diagrams, you'll find it useful since many of your figures would be of that form, I'll try add more styles in the future :)
+\usetikzlibrary{trees,positioning,fit,calc}
+\tikzset{block/.style = {draw, fill=blue!20, rectangle,
+                         minimum height=3em, minimum width=4em},
+        input/.style = {coordinate},
+        output/.style = {coordinate}
+}
+
+\usepackage[section]{minted}
+\usepackage{xcolor}
+\usemintedstyle{porland}
+
+\usepackage{chngcntr}
+\counterwithin{figure}{section}
+
+\usepackage{tocbasic}
+\setuptoc{lol}{levelup}
+
+% \usepackage{indentfirst}
+\geometry{a4paper, margin=1in}
+
+%----------EDIT COVER INFO HERE -----------------%
+
+\def \LOGOPATH {assets/logo-usth.png}
+\def \DEPARTEMENT {Department of Information and Communication Technology}
+\def \COURSENUM {ENCS101}
+\def \COURSENAME {Network Programming}
+\def \REPORTTITLE {C Program to resolve domain names}
+\def \STUDENTNAME {DUONG Tuan Minh}
+\def \STUDENTID {BI11-172}
+\def \INSTRUCTOR {TRAN Giang Son}
+
+%------------------------------------------------%
+
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0em}
+
+\begin{document}
+
+\pagenumbering{Roman}
+
+\begin{titlepage}
+    \vfill
+    \begin{center}
+        \includegraphics[width=0.7\textwidth]{\LOGOPATH} \\
+        \hfill \\
+        \Large{\DEPARTEMENT} \\
+        \Large{\COURSENAME} \\
+        \vfill
+        \textbf{\LARGE{\REPORTTITLE}}
+    \end{center}
+    \vfill
+    \begin{flushleft}
+        \Large{\textbf{Prepared by:} \STUDENTNAME\;-\;\STUDENTID} \\
+        \Large{\textbf{Instructor:} \INSTRUCTOR} \\
+        \Large{\textbf{Date:} \today}
+    \end{flushleft}
+    \vfill
+\end{titlepage}
+
+%--------------ABSTRACT ------------------------%
+{
+\section*{\centering Abstract} 
+This document specifies a method and procedures to implement a DNS resolver program in C language. Specifically, two functions C functions gethostbyname() and inet\_ntop() are used to resolve domain name to IP addresses and present the result.
+\clearpage
+}
+
+%-----------------------------------------------%
+
+\tableofcontents
+\clearpage
+
+\setlength{\parskip}{\baselineskip}%
+
+\pagenumbering{arabic}
+
+%--------------INTRODUCTION ---------------------%
+
+\section{Problem Analysis}
+
+\subsection{Get domain name from user}
+\begin{itemize}
+    \item Domain name comes from program's arguments
+    \item Domain name comes from user input
+\end{itemize}
+
+\subsection{Resolve domain name}
+\begin{itemize}
+    \item Hostname is not found
+    \item Hostname is resolved successfully
+\end{itemize}
+
+\section{Get domain name from user}
+Initially, a char array of length 255 is declared to store the domain name
+\begin{verbatim}
+    char domain[MAX_LENGTH];
+\end{verbatim}
+
+\subsection{Domain name comes from program's arguments}
+\Verb"argc" is the argument count. If \Verb"argc" is greater than one, there is at least one argument. We copy the second argument of \Verb"argv" (the first argument is the program name) into the \Verb"domain" char array
+\begin{verbatim}
+    if (argc > 1)
+    {
+        strncpy(domain, argv[1], MAX_LENGTH);
+    }\end{verbatim}
+
+\subsection{Domain name comes from user input}
+If no argument is provided, we prompt the user to enter a domain name and store the input into the \Verb"domain" char array
+\begin{verbatim}
+    else
+    {
+        printf("Enter a domain name: ");
+        scanf("%255s", domain);
+    }
+\end{verbatim}
+\clearpage
+
+\section{Resolve domain name}
+Utilizing the function \Verb"gethostbyname()", we can resolve the \Verb"domain" and obtain either a pointer to a \Verb"struct hostent" or a null pointer.
+\subsection{Hostname is not found}
+If we obtain a null pointer, the domain name cannot be resolved. Then we inform the user and exit the program
+\begin{verbatim}
+    if (host_ptr == NULL)
+    {
+        printf("Cannot find address for hostname: %s\n", domain);
+        return 0;
+    }
+\end{verbatim}
+\subsection{Hostname is resolved successfully}
+If we obtain a pointer to a \Verb"struct hostent", we loop through its address list, convert each address to a char array using the function \Verb"inet_ntop̣()" and print the result 
+\begin{verbatim}
+    printf("Official hostname: %s\n", host_ptr->h_name);
+
+    char ip_addr[32];
+    int total_addr = sizeof(host_ptr->h_addr_list) /
+    sizeof(host_ptr->h_addr_list[0]);
+
+    for (int i = 0; i < total_addr; i++)
+    {
+        printf("Address: %s\n", inet_ntop(host_ptr->h_addrtype,
+        host_ptr->h_addr_list[i], ip_addr, sizeof(ip_addr)));
+    }
+    return 0;
+\end{verbatim}
+
+
+\clearpage
+\section{Demonstration}
+Compile the program to an output file name \Verb"mynslookup"
+\subsection{Run the program locally}
+\begin{verbatim}
+> ./mynslookup facebook.com
+Official hostname: facebook.com
+Address: 157.240.211.35
+
+> ./mynslookup
+Enter a domain name: facebook.com
+Official hostname: facebook.com
+Address: 157.240.211.35
+
+> ./mynslookup randomtext
+Cannot find address for hostname: randomtext
+
+> ./mynslookup
+Enter a domain name: randomtext
+Cannot find address for hostname: randomtext
+\end{verbatim}
+\subsection{Run the program on a VPS in Singapore}
+\begin{verbatim}
+> ./mynslookup facebook.com
+Official hostname: facebook.com
+Address: 157.240.235.35
+
+> ./mynslookup
+Enter a domain name: facebook.com
+Official hostname: facebook.com
+Address: 157.240.235.35
+
+> ./mynslookup randomtext
+Cannot find address for hostname: randomtext
+
+> ./mynslookup
+Enter a domain name: randomtext
+Cannot find address for hostname: randomtext
+\end{verbatim}
+The resolved IP address of facebook.com on my local machine \Verb"157.240.211.35" is different from the one from my VPS \Verb"157.240.235.35" because one domain name can map to multiple IP addresses and the geological distance can cause the mapping to behave differently in diffent region.
+\clearpage
+
+
+\end{document}

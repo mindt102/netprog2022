@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     else
     {
         printf("Enter a domain name: ");
-        scanf("%s", domain);
+        scanf("%255s", domain);
     }
     struct hostent *host_ptr = gethostbyname(domain);
 
