@@ -29,9 +29,8 @@ int main(int argc, char **argv)
     printf("Official hostname: %s\n", host_ptr->h_name);
 
     char ip_addr[32];
-    int total_addr = sizeof(host_ptr->h_addr_list) / sizeof(host_ptr->h_addr_list[0]);
 
-    for (int i = 0; i < total_addr; i++)
+    for (int i = 0; host_ptr->h_addr_list[i] != NULL; i++)
     {
         printf("Address: %s\n", inet_ntop(host_ptr->h_addrtype, host_ptr->h_addr_list[i], ip_addr, sizeof(ip_addr)));
     }
