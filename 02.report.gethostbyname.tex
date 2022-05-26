@@ -138,12 +138,10 @@ If we obtain a pointer to a \Verb"struct hostent", we loop through its address l
     printf("Official hostname: %s\n", host_ptr->h_name);
 
     char ip_addr[32];
-    int total_addr = sizeof(host_ptr->h_addr_list) /
-    sizeof(host_ptr->h_addr_list[0]);
 
-    for (int i = 0; i < total_addr; i++)
+    for (int i = 0; host_ptr->h_addr_list[i] != NULL; i++)
     {
-        printf("Address: %s\n", inet_ntop(host_ptr->h_addrtype,
+        printf("Address: %s\n", inet_ntop(host_ptr->h_addrtype, 
         host_ptr->h_addr_list[i], ip_addr, sizeof(ip_addr)));
     }
     return 0;
@@ -164,6 +162,21 @@ Enter a domain name: facebook.com
 Official hostname: facebook.com
 Address: 157.240.211.35
 
+> ./mynslookup stackoverflow.com
+Official hostname: stackoverflow.com
+Address: 151.101.193.69
+Address: 151.101.129.69
+Address: 151.101.65.69
+Address: 151.101.1.69
+
+> ./mynslookup
+Enter a domain name: stackoverflow.com
+Official hostname: stackoverflow.com
+Address: 151.101.193.69
+Address: 151.101.129.69
+Address: 151.101.65.69
+Address: 151.101.1.69
+
 > ./mynslookup randomtext
 Cannot find address for hostname: randomtext
 
@@ -181,6 +194,21 @@ Address: 157.240.235.35
 Enter a domain name: facebook.com
 Official hostname: facebook.com
 Address: 157.240.235.35
+
+> ./mynslookup stackoverflow.com
+Official hostname: stackoverflow.com
+Address: 151.101.193.69
+Address: 151.101.1.69
+Address: 151.101.129.69
+Address: 151.101.65.69
+
+> ./mynslookup
+Enter a domain name: stackoverflow.com
+Official hostname: stackoverflow.com
+Address: 151.101.193.69
+Address: 151.101.1.69
+Address: 151.101.129.69
+Address: 151.101.65.69
 
 > ./mynslookup randomtext
 Cannot find address for hostname: randomtext
