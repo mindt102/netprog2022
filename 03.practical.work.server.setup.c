@@ -9,7 +9,8 @@ int main()
     struct sockaddr_in saddr, caddr;
     unsigned short port = 8784;
 
-    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0) < 0)) {
+    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    {
         printf("Error creating socket\n");
         return 1;
     }
@@ -19,21 +20,24 @@ int main()
     saddr.sin_addr.s_addr = htonl(INADDR_ANY);
     saddr.sin_port = htons(port);
 
-    if ((bind(sockfd, (struct sockaddr *) &saddr, sizeof(saddr)) < 0)) {
-        printf("Error binding\n");
+    if (bind(sockfd, (struct sockaddr *)&saddr, sizeof(saddr)) < 0)
+    {
+        perror("Error binding");
         return 1;
     }
 
-    if (listen(sockfd, 5) < 0) {
-        printf("Error listening\n");
+    if (listen(sockfd, 5) < 0)
+    {
+        perror("Error listening");
         return 1;
     }
 
     clen = sizeof(caddr);
-    if ((clientfd=accept(sockfd, (struct sockaddr *) &caddr, &clen))) {
-        printf("Error accepting connection\n");
+    if ((clientfd = accept(sockfd, (struct sockaddr *)&caddr, &clen)) < 0)
+    {
+        perror("Error accepting connection");
         return 1;
     }
-    printf("Client connected!");
+    printf("Client connected!\n");
     return 0;
 }
