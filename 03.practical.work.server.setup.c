@@ -31,13 +31,18 @@ int main()
         perror("Error listening");
         return 1;
     }
+    printf("Listening on port %d...\n", port);
 
     clen = sizeof(caddr);
-    if ((clientfd = accept(sockfd, (struct sockaddr *)&caddr, &clen)) < 0)
+    while (1)
     {
-        perror("Error accepting connection");
-        return 1;
+        if ((clientfd = accept(sockfd, (struct sockaddr *)&caddr, &clen)) < 0)
+        {
+            perror("Error accepting connection");
+            return 1;
+        }
+
+        printf("A client connected!\n");
     }
-    printf("Client connected!\n");
     return 0;
 }
