@@ -22,6 +22,11 @@ int main(int argc, char **argv)
     {
         printf("Enter a hostname: ");
         scanf("%255s", hostname);
+
+        // Clear input buffer
+        // https://www.geeksforgeeks.org/clearing-the-input-buffer-in-cc/
+        while ((getchar()) != '\n')
+            ; // I try to fix this but VSCode auto format feature hates me
     }
 
     struct hostent *host_ptr;
