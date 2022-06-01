@@ -51,15 +51,14 @@ int main(int argc, char **argv)
     printf("Connected to %s\n", inet_ntop(host_ptr->h_addrtype, host_ptr->h_addr_list[0], ip_addr, sizeof(ip_addr)));
 
     char message[1024];
-    char response[1024];
 
     while (1)
     {
         printf("> ");
-        scanf("%1024s", message);
-        send(sockfd, message, sizeof(message), 0);
-        recv(sockfd, response, sizeof(response), 0);
-        printf("Server: %s\n", response);
+        fgets(message, 1024, stdin);
+        send(sockfd, message, strlen(message) + 1, 0);
+        recv(sockfd, message, sizeof(message), 0);
+        printf("Server: %s", message);
     }
     return 0;
 }

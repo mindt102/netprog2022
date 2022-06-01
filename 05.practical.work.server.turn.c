@@ -42,16 +42,15 @@ int main()
 
     printf("A client connected!\n");
 
-    char message[1024] = "";
-    char response[1024];
+    char message[1024];
 
     while (1)
     {
-        recv(clientfd, response, sizeof(response), 0);
-        printf("Client: %s\n", response);
+        recv(clientfd, message, sizeof(message), 0);
+        printf("Client: %s", message);
         printf("> ");
-        scanf("%1024s", message);
-        send(clientfd, message, sizeof(message), 0);
+        fgets(message, 1024, stdin);
+        send(clientfd, message, strlen(message) + 1, 0);
     }
     return 0;
 }
