@@ -77,17 +77,16 @@ int main(int argc, char **argv)
     char message[1024];
 
     int connected = 1;
+    int read_status;
     while (connected)
     {
-        if (recv(sockfd, message, sizeof(message), 0) > 0)
+        read_status = recv(sockfd, message, sizeof(message), 0);
+        if (read_status > 0)
         {
             printf("\rServer: ");
             printf("%s", message);
-            if (strcmp(message, "Disconnect\n") == 0)
-            {
-                break;
-            }
-            else if (strcmp(message, "/clear\n") == 0)
+
+            if (strcmp(message, "/clear\n") == 0)
             {
                 system("clear");
                 printf("> ");
@@ -101,6 +100,11 @@ int main(int argc, char **argv)
             }
             printf("> ");
         }
+        else if (read_status == 0)
+        {
+            printf("\rServer disconnected.\n");
+            break;
+        }
 
         if (poll(&stdin_pollfd, 1, 0) > 0)
         {
@@ -109,9 +113,8 @@ int main(int argc, char **argv)
                 fgets(message, sizeof(message), stdin);
                 if (strcmp(message, "/quit\n") == 0)
                 {
-                    strcpy(message, "Disconnect\n");
-                    printf("Disconnected.\n");
                     connected = 0;
+                    break;
                 }
 
                 send(sockfd, message, strlen(message) + 1, 0);

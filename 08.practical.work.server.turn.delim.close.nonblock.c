@@ -68,16 +68,14 @@ int main()
 
             printf("> ");
             int connected = 1;
+            int read_status;
             while (connected)
             {
-                if (recv(clientfd, message, sizeof(message), 0) > 0)
+                read_status = recv(clientfd, message, sizeof(message), 0);
+                if (read_status > 0)
                 {
                     printf("\rClient: ");
                     printf("%s", message);
-                    if (strcmp(message, "Disconnect\n") == 0)
-                    {
-                        break;
-                    }
 
                     while (message[strlen(message) - 1] != '\n')
                     {
@@ -87,6 +85,11 @@ int main()
 
                     printf("> ");
                 }
+                else if (read_status == 0)
+                {
+                    printf("\rClient disconnected.\n");
+                    break;
+                }
 
                 if (poll(&stdin_pollfd, 1, 0) > 0)
                 {
@@ -95,9 +98,8 @@ int main()
                         fgets(message, sizeof(message), stdin);
                         if (strcmp(message, "/dc\n") == 0)
                         {
-                            strcpy(message, "Disconnect\n");
-                            printf("Disconnected.\n");
                             connected = 0;
+                            break;
                         }
                         else if (strcmp(message, "/quit\n") == 0)
                         {
