@@ -9,9 +9,9 @@ FORMAT = '[%(asctime)s] client %(clientip)-15s sent %(message)s'
 logging.basicConfig(level=logging.INFO, format=FORMAT)
 def main(port):
     try:
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.bind(("", port))
-    print(f"Started server on UDP/{port}")
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.bind(("", port))
+        print(f"Started server on UDP/{port}")
     except Exception:
         logging.exception("Error binding")
         exit(-1)
