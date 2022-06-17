@@ -3,19 +3,31 @@ import socketserver
 import argparse
 import random
 import time
+import fcntl
 
 BUFSIZE = 1024
+TICKET_FILENAME = "ticket_count.txt"
 
 class MyTCPSocketHandler(socketserver.BaseRequestHandler):
     def handle(self):
-        with open("ticket_count.txt", "r") as f:
+        self.request.sendall(f"Preparing a ticket, please wait.\n".encode())
+        try:
+            f = open(TICKET_FILENAME, "r+")
             ticket_count = int(f.read())
-        with open("ticket_count.txt", "w") as f:
+            fcntl.flock(f, fcntl.LOCK_EX)
+        except (IOError, OSError, ValueError) as e:
+            print(f"Error: {e}")
+            self.request.sendall("500 - Internal Server Error")
+            return
+
+        try:
+            self.request.sendall(f"Your ticket number is {ticket_count}\n".encode())
+            f.seek(0)
             f.write(str(ticket_count+1))
-        delay = random.randint(1,5)
-        self.request.sendall(f"Preparing a ticket, please wait for {delay} seconds\n".encode())
-        time.sleep(delay)
-        self.request.sendall(f"Your ticket number is {ticket_count}\n".encode())
+            f.truncate()
+        finally:
+            fcntl.flock(f, fcntl.LOCK_UN)
+            f.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -23,9 +35,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     ticket_count = 1
-    with open("ticket_count.txt", "w") as f:
+    with open(TICKET_FILENAME, "w") as f:
         f.write(str(ticket_count))
 
+    print(f"Selling tickets on port {args.port}")
     server = socketserver.ForkingTCPServer(("", args.port), MyTCPSocketHandler)
 
     server.serve_forever()
